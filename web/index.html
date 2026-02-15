@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Secure your code with Out of Harm's Way.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="out_of_harms_way">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <title>Out of Harm's Way</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Three.js & MediaPipe CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background-color: #000 !important;
+      overflow: hidden;
+    }
+
+    #three-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    video#camera-preview {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 200px;
+      height: 150px;
+      z-index: 100;
+      border: 2px solid #E8C1CF;
+      border-radius: 12px;
+      background: #000;
+      display: none;
+      transform: scaleX(-1);
+      /* Mirror effect */
+      object-fit: cover;
+    }
+
+    /* Flutter web host transparency */
+    flt-glass-pane {
+      background: transparent !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="three-container"></div>
+  <video id="camera-preview" autoplay playsinline muted></video>
+
+  <!-- Load local scripts after DOM -->
+  <script src="three_scene.js"></script>
+
+  <!-- Simplified hand tracking - minimal version -->
+  <script>
+    console.log('[JS] INLINE SCRIPT EXECUTING');
+
+    // Global variables
+    window.handTrackingData = {
+      hands: null,
+      camera: null,
+      isPinching: false,
+      startPinchY: 0,
+      lastExpandFactor: 1.0
+    };
+
+    // Simple function definition
+    window.initHandTracking = function (videoElementId) {
+      console.log('[JS] initHandTracking called with:', videoElementId);
+
+      const videoElement = document.getElementById(videoElementId);
+      if (!videoElement) {
+        console.error('[JS] Video element not found:', videoElementId);
+        return;
+      }
+
+      try {
+        const hands = new Hands({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+          maxNumHands: 1,
+          modelComplexity: 1,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+
+        hands.onResults(function (results) {
+          if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+            // Reset to idle state if hand lost
+            if (window.updateSphereRotation) window.updateSphereRotation(0.001, 0.002);
+            if (window.updateSphereScale) window.updateSphereScale(1.0);
+            if (window.onHandUpdate) window.onHandUpdate(null);
+            return;
+          }
+
+          const landmarks = results.multiHandLandmarks[0];
+
+          // 1. Calculate Hand Span (Thumb Tip #4 to Pinky Tip #20)
+          const thumbTip = landmarks[4];
+          const pinkyTip = landmarks[20];
+
+          const handSpan = Math.sqrt(
+            Math.pow(thumbTip.x - pinkyTip.x, 2) +
+            Math.pow(thumbTip.y - pinkyTip.y, 2)
+          );
+
+          // Normalize span: 0.05 (closed) to 0.25 (open) -> Map to scale 0.5 to 2.5
+          const clampedSpan = Math.max(0.05, Math.min(0.25, handSpan));
+          const normalizedSpan = (clampedSpan - 0.05) / (0.25 - 0.05); // 0.0 to 1.0
+          const targetScale = 0.5 + (normalizedSpan * 2.0); // 0.5 to 2.5
+
+
+          // 2. Calculate Hand Centroid for Rotation (Average of Wrist #0, Middle Finger MCP #9)
+          const wrist = landmarks[0];
+          const middleMcp = landmarks[9];
+          const centerX = (wrist.x + middleMcp.x) / 2;
+          const centerY = (wrist.y + middleMcp.y) / 2;
+
+          // Rotation Speed based on distance from center
+          const rotationSpeedY = (centerX - 0.5) * 0.2;
+          const rotationSpeedX = (centerY - 0.5) * 0.1;
+
+
+          // Update Sphere Visuals
+          if (window.updateSphereScale) {
+            window.updateSphereScale(targetScale);
+          }
+
+          if (window.updateSphereRotation) {
+            window.updateSphereRotation(rotationSpeedX + 0.001, rotationSpeedY + 0.002);
+          }
+
+          if (window.updateSpherePosition) {
+            // Map 0..1 to -1..1 range for position
+            // Invert X because webcam is mirrored usually
+            const posX = -(centerX - 0.5) * 3.0;
+            const posY = -(centerY - 0.5) * 2.0;
+            window.updateSpherePosition(posX, posY);
+          }
+
+          // Send data to Dart (Standardized format)
+          const screenX = (1 - centerX) * window.innerWidth;
+          const screenY = centerY * window.innerHeight;
+
+          if (window.onHandUpdate) {
+            window.onHandUpdate({
+              x: screenX,
+              y: screenY,
+              isPinching: handSpan < 0.1, // Proxy for "closed hand"
+              expandFactor: targetScale
+            });
+          }
+        });
+
+        const camera = new Camera(videoElement, {
+          onFrame: async () => {
+            await hands.send({ image: videoElement });
+          },
+          width: 640,
+          height: 480
+        });
+
+        window.handTrackingData.hands = hands;
+        window.handTrackingData.camera = camera;
+
+        camera.start();
+        console.log('[JS] Hand tracking started successfully');
+      } catch (error) {
+        console.error('[JS] Error initializing hand tracking:', error);
+      }
+    };
+
+    // Stop function to release resources
+    window.stopHandTracking = function () {
+      console.log('[JS] stopHandTracking called');
+
+      try {
+        if (window.handTrackingData.camera) {
+          // CameraUtils doesn't have a stop() method in all versions, 
+          // but we can at least stop the video element source
+          const videoElement = window.handTrackingData.camera.video;
+          if (videoElement && videoElement.srcObject) {
+            const tracks = videoElement.srcObject.getTracks();
+            tracks.forEach(track => track.stop());
+            videoElement.srcObject = null;
+          }
+          window.handTrackingData.camera = null;
+        }
+
+        if (window.handTrackingData.hands) {
+          window.handTrackingData.hands.close();
+          window.handTrackingData.hands = null;
+        }
+
+        // Reset sphere state
+        if (window.updateSphereScale) window.updateSphereScale(1.0);
+        if (window.updateSphereRotation) window.updateSphereRotation(0.001, 0.002);
+
+        console.log('[JS] Hand tracking stopped successfully');
+      } catch (e) {
+        console.error('[JS] Error stopping hand tracking:', e);
+      }
+    };
+
+    console.log('[JS] initHandTracking function created, type:', typeof window.initHandTracking);
+  </script>
+
+  <script>
+    // Verify all functions are loaded
+    console.log('=== Verifying JS Functions ===');
+    console.log('initThreeScene:', typeof window.initThreeScene);
+    console.log('initHandTracking:', typeof window.initHandTracking);
+    console.log('updateSphereScale:', typeof window.updateSphereScale);
+    console.log('==============================');
+  </script>
+
+  <script src="main.dart.js" type="application/javascript"></script>
+</body>
+
+</html>
