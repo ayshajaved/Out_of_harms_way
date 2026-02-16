@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'dart:html' as html;
 
 // Import allowInterop as a top-level function to avoid shadowing issues
-import 'dart:js' show allowInterop;
 
 class HandTracker extends StatefulWidget {
   final Function(Map data) onHandUpdate;
@@ -25,7 +24,7 @@ class HandTrackerState extends State<HandTracker> {
 
   void _setupJSCallback() {
     // Definitive assignment using direct allowInterop function
-    js.context['onHandUpdate'] = allowInterop((data) {
+    js.context['onHandUpdate'] = js.allowInterop((data) {
       if (data == null) {
         widget.onHandUpdate({});
       } else {
@@ -62,30 +61,30 @@ class HandTrackerState extends State<HandTracker> {
         final preview = html.document.getElementById('camera-preview');
         if (preview != null) {
           preview.style.display = 'block';
-          print('[HandTracker] Camera preview element shown');
+          debugPrint('[HandTracker] Camera preview element shown');
           setState(() {
             _isCameraActive = true;
           });
         } else {
-          print('[HandTracker] WARNING: camera-preview element not found');
+          debugPrint('[HandTracker] WARNING: camera-preview element not found');
         }
       } catch (e) {
-        print('[HandTracker] ERROR calling initHandTracking: $e');
+        debugPrint('[HandTracker] ERROR calling initHandTracking: $e');
       }
     } else {
-      print('[HandTracker] ERROR: initHandTracking not found in window object');
+      debugPrint('[HandTracker] ERROR: initHandTracking not found in window object');
       // List some properties to help debug
-      print(
+      debugPrint(
         '[HandTracker] Window has updateSphereScale: ${js.context.hasProperty('updateSphereScale')}',
       );
-      print(
-        '[HandTracker] Window has initThreeScene: ${js.context.hasProperty('initThreeScene')}',
+      debugPrint(
+        '[HandTracker] Window has updateSphereRotation: ${js.context.hasProperty('updateSphereRotation')}',
       );
     }
   }
 
   void stopCamera() {
-    print('[HandTracker] stopCamera() called');
+    debugPrint('[HandTracker] stopCamera() called');
 
     // Hide the preview element
     final preview = html.document.getElementById('camera-preview');

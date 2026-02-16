@@ -7,7 +7,7 @@ class Slide2Analysis extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _StorySlide(
+    return const _StorySlide(
       badge: '01',
       title1: 'the',
       title2: 'analysis',
@@ -22,7 +22,7 @@ class Slide3Generation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _StorySlide(
+    return const _StorySlide(
       badge: '02',
       title1: 'the',
       title2: 'generation',
@@ -37,7 +37,7 @@ class Slide4Security extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _StorySlide(
+    return const _StorySlide(
       badge: '03',
       title1: 'the',
       title2: 'security',

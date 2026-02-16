@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import '../../core/theme/app_colors.dart';
 import '../widgets/layers/background_layers.dart';
 import '../widgets/fixed_stage/fixed_stage.dart';
 import '../widgets/fixed_stage/components/common.dart';
 import '../widgets/three_d/liquid_sphere_view.dart';
 import '../widgets/hand_tracking/hand_tracker.dart';
+import '../widgets/navigation/top_nav_bar.dart';
 
 class HeroScreen extends StatefulWidget {
   const HeroScreen({super.key});
@@ -137,6 +137,14 @@ class _HeroScreenState extends State<HeroScreen> {
           HandCursorOverlay(position: _handPosition, isPinching: _isPinching),
 
           HandTracker(key: _handTrackerKey, onHandUpdate: _onHandUpdate),
+
+          // Top Navigation Bar
+          const Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: TopNavigationBar(),
+          ),
         ],
       ),
     );

@@ -33,8 +33,8 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/out_of_harms_way.git
-   cd out_of_harms_way
+   git clone https://github.com/ayshajaved/Out_of_harms_way.git
+   cd Out_of_harms_way
    ```
 
 2. **Install dependencies**

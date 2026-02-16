@@ -17,6 +17,8 @@
   <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>Out of Harm's Way</title>
+  <meta name="google-signin-client_id"
+    content="809219061277-5te11i4vpc069di6sta512e6clefoqgb.apps.googleusercontent.com">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -68,6 +70,23 @@
       background: transparent !important;
     }
   </style>
+  <!-- Firebase Configuration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDiD5c9bhaCf89TlYi5OTLX4yVXrNM3qt8",
+      authDomain: "out-of-harms-way-14cfb.firebaseapp.com",
+      projectId: "out-of-harms-way-14cfb",
+      storageBucket: "out-of-harms-way-14cfb.firebasestorage.app",
+      messagingSenderId: "809219061277",
+      appId: "1:809219061277:web:b9485162225ebd8c6838f4",
+      measurementId: "G-VCL4C9LN7B"
+    };
+
+    initializeApp(firebaseConfig);
+    console.log('[JS] Firebase initialized');
+  </script>
 </head>
 
 <body>
