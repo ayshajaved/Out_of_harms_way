@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 
 class TopNavigationBar extends StatelessWidget {
@@ -60,16 +61,16 @@ class _NavButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
         decoration: BoxDecoration(
-          color: isGhost ? Colors.transparent : const Color(0xFFE8C1CF),
+          color: isGhost ? Colors.transparent : AppColors.btnPrimaryBg,
           borderRadius: BorderRadius.circular(100),
-          border: isGhost ? Border.all(color: const Color(0xFF3F3F3F)) : null,
+          border: isGhost ? Border.all(color: AppColors.surfaceBorder) : null,
         ),
         child: Text(
           label,
           style: GoogleFonts.spaceGrotesk(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: isGhost ? const Color(0xFFE5E5E5) : const Color(0xFF141414),
+            color: isGhost ? AppColors.textMain : AppColors.btnPrimaryText,
             letterSpacing: 1.1,
           ),
         ),

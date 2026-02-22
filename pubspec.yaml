@@ -73,7 +73,7 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 
 flutter:
-  uses-material-design: false       # Custom design system
+  uses-material-design: true       # Custom design system
   
   assets:
     - assets/shaders/              # Custom GLSL shaders for liquid effect

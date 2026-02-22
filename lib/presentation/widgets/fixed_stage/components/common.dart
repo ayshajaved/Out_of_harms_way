@@ -14,7 +14,7 @@ class StepBadge extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.accent),
         borderRadius: BorderRadius.circular(20),
-        color: const Color(0x4D000000), // rgba(0,0,0,0.3)
+        color: AppColors.outerBg.withOpacity(0.3), // rgba(0,0,0,0.3)
         boxShadow: [
           BoxShadow(
             color: AppColors.accent.withOpacity(0.2),

@@ -92,11 +92,24 @@ class _CodeGeneratorScreenState extends ConsumerState<CodeGeneratorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.outerBg,
       appBar: AppBar(
-        title: Text('SECURE CODE GEN', style: AppTypography.stepBadge),
-        backgroundColor: Colors.black,
+        title: Row(
+          children: [
+            const Icon(Icons.security, color: AppColors.accent, size: 20),
+            const SizedBox(width: 12),
+            Text('SECURE CODE GEN', style: AppTypography.stepBadge),
+          ],
+        ),
+        backgroundColor: AppColors.outerBg,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: AppColors.textMuted, size: 20),
+            onPressed: () => ref.read(authServiceProvider).signOut(),
+          ),
+          const SizedBox(width: 16),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
@@ -114,21 +127,22 @@ class _CodeGeneratorScreenState extends ConsumerState<CodeGeneratorScreen> {
               children: [
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF141414),
+                      color: AppColors.surfaceLight,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF2A2A2A)),
+                      border: Border.all(color: AppColors.surfaceBorder, width: 1.5),
                     ),
                     child: TextField(
                       controller: _promptController,
-                      style: GoogleFonts.spaceGrotesk(color: Colors.white),
+                      style: GoogleFonts.spaceGrotesk(color: AppColors.textMain),
                       decoration: InputDecoration(
+                        icon: const Icon(Icons.terminal, color: AppColors.textMuted),
                         hintText: 'e.g., Create a login system with password hashing',
-                        hintStyle: GoogleFonts.spaceGrotesk(color: AppColors.textMuted),
+                        hintStyle: GoogleFonts.spaceGrotesk(color: AppColors.textMuted.withOpacity(0.5)),
                         border: InputBorder.none,
                       ),
-                      maxLines: 3,
+                      maxLines: 4,
                     ),
                   ),
                 ),
@@ -138,36 +152,70 @@ class _CodeGeneratorScreenState extends ConsumerState<CodeGeneratorScreen> {
             
             Row(
               children: [
-                DropdownButton<String>(
-                  value: _selectedLanguage,
-                  dropdownColor: const Color(0xFF141414),
-                  style: GoogleFonts.spaceGrotesk(color: Colors.white),
-                  items: _languages.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value.toUpperCase()),
-                    );
-                  }).toList(),
-                  onChanged: (val) => setState(() => _selectedLanguage = val!),
-                ),
-                const SizedBox(width: 16),
-                // Mock Toggle Switch
-                Row(
-                  children: [
-                    Switch(
-                      value: _useMock,
-                      onChanged: _isLoading ? null : (val) => setState(() => _useMock = val),
-                      activeColor: const Color(0xFFE8C1CF),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.innerBg,
+                    border: Border.all(color: AppColors.surfaceBorder),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedLanguage,
+                      icon: const Icon(Icons.code, color: AppColors.accent, size: 16),
+                      dropdownColor: AppColors.innerBg,
+                      style: GoogleFonts.spaceGrotesk(color: AppColors.textMain, fontWeight: FontWeight.bold),
+                      items: _languages.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(" ${value.toUpperCase()}"),
+                        );
+                      }).toList(),
+                      onChanged: (val) => setState(() => _selectedLanguage = val!),
                     ),
-                    Text('Use Mock Data', style: GoogleFonts.spaceGrotesk(color: Colors.white70, fontSize: 12)),
-                  ],
+                  ),
+                ),
+                const SizedBox(width: 24),
+                // Mock Toggle Switch
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: _useMock ? AppColors.accent.withOpacity(0.1) : AppColors.innerBg,
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(color: _useMock ? AppColors.accent : AppColors.surfaceBorder),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.science, color: _useMock ? AppColors.accent : AppColors.textMuted, size: 16),
+                      const SizedBox(width: 8),
+                      Text('Mock Mode', style: GoogleFonts.spaceGrotesk(
+                        color: _useMock ? AppColors.accent : AppColors.textMuted, 
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12
+                      )),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        height: 24,
+                        child: Switch(
+                          value: _useMock,
+                          onChanged: _isLoading ? null : (val) => setState(() => _useMock = val),
+                          activeColor: AppColors.accent,
+                          activeTrackColor: AppColors.accent.withOpacity(0.3),
+                          inactiveThumbColor: AppColors.textMuted,
+                          inactiveTrackColor: AppColors.surfaceLight,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const Spacer(),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _generate,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE8C1CF),
-                    foregroundColor: Colors.black,
+                    backgroundColor: AppColors.btnPrimaryBg,
+                    foregroundColor: AppColors.btnPrimaryText,
+                    elevation: _isLoading ? 0 : 4,
+                    shadowColor: AppColors.accent.withOpacity(0.5),
                     padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 20),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                   ),
@@ -175,12 +223,19 @@ class _CodeGeneratorScreenState extends ConsumerState<CodeGeneratorScreen> {
                     ? Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)),
+                          const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.btnPrimaryText)),
                           const SizedBox(width: 12),
-                          Text(_currentStep.isEmpty ? "Working..." : _currentStep, style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold, fontSize: 12)),
+                          Text(_currentStep.isEmpty ? "Working..." : _currentStep, style: AppTypography.buttonText),
                         ],
                       )
-                    : Text('EXECUTE AGENTS', style: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold)),
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.auto_awesome, size: 18),
+                          const SizedBox(width: 12),
+                          Text('EXECUTE AGENTS', style: AppTypography.buttonText),
+                        ],
+                      ),
                 ),
               ],
             ),
@@ -190,11 +245,17 @@ class _CodeGeneratorScreenState extends ConsumerState<CodeGeneratorScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: AppColors.errorBg,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.error.withOpacity(0.5)),
                 ),
-                child: Text(_error!, style: GoogleFonts.spaceGrotesk(color: Colors.redAccent)),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: AppColors.error),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(_error!, style: GoogleFonts.spaceGrotesk(color: AppColors.error))),
+                  ],
+                ),
               ),
             ],
 
@@ -221,18 +282,26 @@ class _ResultDisplay extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text('GENERATED CODE', style: AppTypography.stepBadge),
+            const Icon(Icons.verified, color: AppColors.success, size: 24),
+            const SizedBox(width: 12),
+            Text('GENERATED CODE', style: AppTypography.stepBadge.copyWith(color: AppColors.success)),
             const Spacer(),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: AppColors.success.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(100),
-                border: Border.all(color: Colors.green),
+                border: Border.all(color: AppColors.success.withOpacity(0.3)),
               ),
-              child: Text(
-                'SECURITY SCORE: ${result['security_score']}%',
-                style: GoogleFonts.spaceGrotesk(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold),
+              child: Row(
+                children: [
+                  const Icon(Icons.shield, color: AppColors.success, size: 14),
+                  const SizedBox(width: 8),
+                  Text(
+                    'SECURITY SCORE: ${result['security_score']}%',
+                    style: GoogleFonts.spaceGrotesk(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
             ),
           ],
@@ -242,33 +311,51 @@ class _ResultDisplay extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: const Color(0xFF0D0D0D),
+            color: AppColors.outerBg,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF1F1F1F)),
+            border: Border.all(color: AppColors.surfaceBorder, width: 2),
           ),
           child: SelectableText(
             result['final_code'] ?? 'No code generated.',
-            style: GoogleFonts.firaCode(color: Colors.white, fontSize: 14),
+            style: GoogleFonts.firaCode(color: AppColors.textMain, fontSize: 15, height: 1.5),
           ),
         ),
         const SizedBox(height: 48),
-        Text('SECURITY EXPLANATION', style: AppTypography.stepBadge),
+        Row(
+          children: [
+            const Icon(Icons.lightbulb, color: AppColors.accent, size: 24),
+            const SizedBox(width: 12),
+            Text('SECURITY EXPLANATION', style: AppTypography.stepBadge),
+          ],
+        ),
         const SizedBox(height: 16),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            color: const Color(0xFF141414),
+            color: AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFF1F1F1F)),
+            border: Border.all(color: AppColors.surfaceBorder),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.accent.withOpacity(0.02),
+                blurRadius: 20,
+                spreadRadius: 5,
+              )
+            ]
           ),
           child: MarkdownBody(
             data: result['explanation'] ?? 'No explanation provided.',
             styleSheet: MarkdownStyleSheet(
-              p: GoogleFonts.spaceGrotesk(color: Colors.white70),
-              h1: GoogleFonts.spaceGrotesk(color: Colors.white, fontWeight: FontWeight.bold),
-              h2: GoogleFonts.spaceGrotesk(color: Colors.white, fontWeight: FontWeight.bold),
-              code: GoogleFonts.firaCode(backgroundColor: Colors.black54, color: Colors.greenAccent),
+              p: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 16, height: 1.6),
+              h1: GoogleFonts.spaceGrotesk(color: AppColors.textMain, fontWeight: FontWeight.bold),
+              h2: GoogleFonts.spaceGrotesk(color: AppColors.textMain, fontWeight: FontWeight.bold),
+              code: GoogleFonts.firaCode(backgroundColor: AppColors.outerBg, color: AppColors.success, fontSize: 14),
+              codeblockDecoration: BoxDecoration(
+                color: AppColors.outerBg,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.surfaceBorder)
+              ),
             ),
           ),
         ),

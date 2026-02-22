@@ -14,13 +14,13 @@ class DashboardScreen extends ConsumerWidget {
     final user = authService.currentUser;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.outerBg,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: AppColors.outerBg,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppColors.textMain),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textMain),
           onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
         ),
         title: Text(
@@ -35,7 +35,7 @@ class DashboardScreen extends ConsumerWidget {
                 Navigator.of(context).pushReplacementNamed('/');
               }
             },
-            icon: const Icon(Icons.logout, color: Colors.white),
+            icon: const Icon(Icons.logout, color: AppColors.textMuted),
           ),
           const SizedBox(width: 16),
         ],
@@ -82,19 +82,28 @@ class DashboardScreen extends ConsumerWidget {
                 Navigator.of(context).pushNamed('/generate_code');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE8C1CF),
-                foregroundColor: const Color(0xFF141414),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                backgroundColor: AppColors.btnPrimaryBg,
+                foregroundColor: AppColors.btnPrimaryText,
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(100),
                 ),
+                elevation: 4,
+                shadowColor: AppColors.accent.withOpacity(0.5)
               ),
-              child: Text(
-                'START CODING',
-                style: GoogleFonts.spaceGrotesk(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.rocket_launch, size: 20),
+                  const SizedBox(width: 12),
+                  Text(
+                    'START CODING',
+                    style: GoogleFonts.spaceGrotesk(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
               ),
             ),
             
@@ -107,16 +116,22 @@ class DashboardScreen extends ConsumerWidget {
             const SizedBox(height: 24),
             
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: const Color(0xFF141414),
+                color: AppColors.innerBg,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFF3F3F3F)),
+                border: Border.all(color: AppColors.surfaceBorder),
               ),
               child: Center(
-                child: Text(
-                  'No code history yet.',
-                  style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted),
+                child: Column(
+                  children: [
+                    const Icon(Icons.history_toggle_off, size: 48, color: AppColors.surfaceBorder),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No code history yet.',
+                      style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -138,9 +153,16 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF141414),
+        color: AppColors.innerBg,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFF1F1F1F)),
+        border: Border.all(color: AppColors.surfaceBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ]
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
