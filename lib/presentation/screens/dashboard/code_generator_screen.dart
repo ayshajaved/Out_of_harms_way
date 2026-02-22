@@ -298,7 +298,7 @@ class _ResultDisplay extends StatelessWidget {
                   const Icon(Icons.shield, color: AppColors.success, size: 14),
                   const SizedBox(width: 8),
                   Text(
-                    'SECURITY SCORE: ${result['security_score']}%',
+                    'SECURITY SCORE: ${result['security_score'] ?? 0}%',
                     style: GoogleFonts.spaceGrotesk(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -323,9 +323,9 @@ class _ResultDisplay extends StatelessWidget {
         const SizedBox(height: 48),
         Row(
           children: [
-            const Icon(Icons.lightbulb, color: AppColors.accent, size: 24),
+            const Icon(Icons.analytics, color: AppColors.accent, size: 24),
             const SizedBox(width: 12),
-            Text('SECURITY EXPLANATION', style: AppTypography.stepBadge),
+            Text('DEVSECOPS AUDIT REPORT', style: AppTypography.stepBadge),
           ],
         ),
         const SizedBox(height: 16),
@@ -344,19 +344,69 @@ class _ResultDisplay extends StatelessWidget {
               )
             ]
           ),
-          child: MarkdownBody(
-            data: result['explanation'] ?? 'No explanation provided.',
-            styleSheet: MarkdownStyleSheet(
-              p: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 16, height: 1.6),
-              h1: GoogleFonts.spaceGrotesk(color: AppColors.textMain, fontWeight: FontWeight.bold),
-              h2: GoogleFonts.spaceGrotesk(color: AppColors.textMain, fontWeight: FontWeight.bold),
-              code: GoogleFonts.firaCode(backgroundColor: AppColors.outerBg, color: AppColors.success, fontSize: 14),
-              codeblockDecoration: BoxDecoration(
-                color: AppColors.outerBg,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.surfaceBorder)
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (result['vulnerabilities_found'] != null && (result['vulnerabilities_found'] as List).isNotEmpty) ...[
+                Text('THREATS MITIGATED (OWASP/STRIDE)', style: GoogleFonts.spaceGrotesk(color: AppColors.error, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.2)),
+                const SizedBox(height: 12),
+                ...((result['vulnerabilities_found'] as List).map((v) {
+                  final String text = v is Map ? '${v['category'] ?? 'Threat'}: ${v['mitigation'] ?? ''}' : v.toString();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.healing, color: AppColors.error, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(text, style: GoogleFonts.spaceGrotesk(color: AppColors.textMain, fontSize: 14))),
+                      ],
+                    ),
+                  );
+                }).toList()),
+                const SizedBox(height: 24),
+                const Divider(color: AppColors.surfaceBorder),
+                const SizedBox(height: 24),
+              ],
+              
+              if (result['patterns_used'] != null && (result['patterns_used'] as List).isNotEmpty) ...[
+                Text('ENTERPRISE SECURITY PATTERNS', style: GoogleFonts.spaceGrotesk(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.2)),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: (result['patterns_used'] as List).map((p) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.innerBg,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(color: AppColors.surfaceBorder),
+                    ),
+                    child: Text(p.toString(), style: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.bold)),
+                  )).toList(),
+                ),
+                const SizedBox(height: 24),
+                const Divider(color: AppColors.surfaceBorder),
+                const SizedBox(height: 24),
+              ],
+
+              Text('EXPLANATION', style: GoogleFonts.spaceGrotesk(color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.2)),
+              const SizedBox(height: 12),
+              MarkdownBody(
+                data: result['explanation'] ?? 'No explanation provided.',
+                styleSheet: MarkdownStyleSheet(
+                  p: GoogleFonts.spaceGrotesk(color: AppColors.textMuted, fontSize: 15, height: 1.6),
+                  h1: GoogleFonts.spaceGrotesk(color: AppColors.textMain, fontWeight: FontWeight.bold),
+                  h2: GoogleFonts.spaceGrotesk(color: AppColors.textMain, fontWeight: FontWeight.bold),
+                  code: GoogleFonts.firaCode(backgroundColor: AppColors.outerBg, color: AppColors.success, fontSize: 13),
+                  codeblockDecoration: BoxDecoration(
+                    color: AppColors.outerBg,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.surfaceBorder)
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ],
