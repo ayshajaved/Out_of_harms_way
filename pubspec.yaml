@@ -60,6 +60,8 @@ dependencies:
   firebase_auth: ^4.16.0
   cloud_firestore: ^4.14.0
   google_sign_in: ^6.1.6
+  http: ^1.2.0
+  flutter_markdown: ^0.6.18+1
 
 dependency_overrides:
   firebase_auth_web: ^5.9.1

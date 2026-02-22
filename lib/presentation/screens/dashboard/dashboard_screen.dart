@@ -79,7 +79,7 @@ class DashboardScreen extends ConsumerWidget {
             
             ElevatedButton(
               onPressed: () {
-                // Future: Navigate to code editor
+                Navigator.of(context).pushNamed('/generate_code');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFE8C1CF),
